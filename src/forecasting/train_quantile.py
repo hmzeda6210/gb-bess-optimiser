@@ -9,7 +9,7 @@ sys.path.insert(0, ".")
 from src.analysis.feature_matrix import build_features
 
 QUANTILES = [0.1, 0.5, 0.9]
-FEATURE_COLS = ["settlement_period", "day_of_week", "month", "lag_1d", "lag_1w"]
+FEATURE_COLS = ["settlement_period", "day_of_week", "month", "lag_1d", "lag_1w", "rolling_std_7d"]
 
 BASELINE_MAE = {
     "gb_day_ahead_price": 28.52,
