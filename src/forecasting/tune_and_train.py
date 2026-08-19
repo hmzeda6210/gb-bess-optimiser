@@ -78,7 +78,8 @@ def evaluate_tuned(series_id: str, best_params: dict, alpha: float, n_splits: in
 
 
 if __name__ == "__main__":
-    ALPHA_TO_TUNE = 0.9  # change this to 0.1, 0.5, or 0.9 as needed
+    ALPHA_TO_TUNE = 0.9
+    # change this to 0.1, 0.5, or 0.9 as needed
 
     for series_id in ["gb_day_ahead_price", "gb_imbalance_price"]:
         print(f"\n=== {series_id}: tuning tau={ALPHA_TO_TUNE} ===")
