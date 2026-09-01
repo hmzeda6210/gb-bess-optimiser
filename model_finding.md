@@ -29,6 +29,14 @@ battery dispatch optimisation) should treat it as an *underestimate* of true tai
 risk — the real 90th percentile is likely closer to the model's 70th percentile,
 based on the ~30% miscalibration rate observed.
 
+**Real-money illustration:** a smoke test across 6 dispatch days (see
+`src/optimisation/quick_smoke_test.py`) showed the miscalibration cutting
+both ways, not just one direction — e.g. 20 July: believed profit £529 vs.
+actual £359 (model missed an upside spike); 15 March: believed profit £10
+vs. actual £502 (model's cautious schedule coincidentally captured a spike
+it hadn't planned for). Both outcomes stem from the same root cause: the
+model underestimates how far prices can move, in either direction.
+
 ## MID data gap
 
 A ~10-period gap exists in the day-ahead price series for 2025-06-26 to 2025-07-03

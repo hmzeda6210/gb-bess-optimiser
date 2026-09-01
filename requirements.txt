@@ -6,3 +6,5 @@ clear
 lightgbm
 scikit-learn
 optuna
+pyomo
+highspy
