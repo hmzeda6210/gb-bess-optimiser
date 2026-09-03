@@ -38,8 +38,50 @@ with expanding-window `TimeSeriesSplit` and tuned with Optuna.
 | Day-ahead | £28.52 | £20.64 |
 | Imbalance | £45.51 | £31.31 |
 
-See [`docs/model_limitations.md`](docs/model_limitations.md) for known issues,
-including P90 quantile miscalibration and the diagnostic process behind it.
+## Optimisation
+
+Battery dispatch formulated as a Mixed-Integer Linear Program (Pyomo + HiGHS),
+with a binary variable per period enforcing charge/discharge exclusivity and
+correct handling of negative price periods.
+
+- `src/optimisation/toy_milp.py` — 3-period reference case, verified against a
+  hand-calculated optimum (£120 profit) before scaling up
+- `src/optimisation/dispatch.py` — reusable 48-period dispatch model with
+  physical sanity checks (SoC bounds, power limits, no simultaneous charge/discharge)
+- `src/optimisation/forecast_dispatch.py` — dispatch driven by the Phase 2
+  forecast, then re-priced against actual outcomes (forecast-driven vs.
+  perfect-foresight profit)
+
+## Backtesting
+
+A custom `WalkForwardBacktester` (causal, periodically-retrained) replays the
+full forecast → dispatch → realised-price pipeline across every day in the
+dataset.
+
+- `src/backtesting/walk_forward.py` — the backtest loop and result caching
+- `src/backtesting/metrics.py` — capture rate, Sharpe, drawdown (£ and %),
+  £/MW/year, seasonal breakdown
+- `src/backtesting/costs.py` — trade cost modeling (slippage, fees, degradation)
+- `src/backtesting/plot_seasonal.py` — equity curve, rolling capture rate,
+  seasonal heatmap, forecast-error correlation, and a combined tearsheet
+
+**Results (418 days, 2025-06-01 to 2026-07-23):**
+
+| Metric | Before costs | After costs (assumption-dependent) |
+|---|---|---|
+| Total profit | £117,114 | -£31,354 to £42,880 (see sensitivity analysis) |
+| Capture rate | 44.6% of perfect foresight | — |
+| £/MW/year | £20,453 | -£5,476 to £7,489 |
+
+Arbitrage-only trading frequently fails to cover realistic degradation and
+transaction costs at this battery duration — consistent with why real BESS
+projects stack multiple revenue streams rather than relying on day-ahead
+arbitrage alone.
+
+See [`model_finding.md`](model_finding.md) and
+[`docs/model_limitations.md`](docs/model_limitations.md) for the full findings
+log, including the P90 miscalibration diagnosis, the corrected seasonal
+finding, and the cost sensitivity analysis.
 
 ## Setup
 
@@ -48,4 +90,6 @@ pip install -r requirements.txt
 python -m src.ingestion.run_backfill mid 2025-05-01 2026-07-23
 python -m src.ingestion.run_backfill disebsp 2025-05-01 2026-07-23
 python -m src.forecasting.train_quantile
+python -m src.backtesting.walk_forward
+python -m src.backtesting.plot_seasonal
 ```
