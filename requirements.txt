@@ -2,7 +2,6 @@ requests
 pandas
 sqlalchemy
 python-dotenv
-clear
 lightgbm
 scikit-learn
 optuna
