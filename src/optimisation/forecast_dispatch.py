@@ -58,6 +58,29 @@ def evaluate_forecast_driven_dispatch(target_date: str, capacity: float, max_pow
         "schedule": schedule,
         "checks": checks,
     }
+    
+    
+def train_p50_model(df: pd.DataFrame, cutoff_date: str):
+    """Trains once on everything strictly before cutoff_date. Pass in an
+    already-loaded feature matrix (from build_features) rather than
+    reloading it every call - the raw data doesn't change day to day,
+    only the training cutoff does."""
+    cutoff_ts = pd.Timestamp(cutoff_date, tz="UTC")
+    train_mask = df["settlement_datetime"] < cutoff_ts
+    X_train, y_train = df.loc[train_mask, FEATURE_COLS], df.loc[train_mask, "y"]
+    model = lgb.LGBMRegressor(objective="quantile", alpha=0.5, verbose=-1, **P50_PARAMS)
+    model.fit(X_train, y_train)
+    return model
+
+
+def forecast_with_model(df: pd.DataFrame, model, target_date: str) -> dict:
+    """Forecasts one day using an ALREADY-TRAINED model - no retraining here."""
+    target_ts = pd.Timestamp(target_date, tz="UTC")
+    test_mask = df["settlement_datetime"].dt.date == target_ts.date()
+    X_test = df.loc[test_mask, FEATURE_COLS]
+    periods = df.loc[test_mask, "settlement_period"].astype(int).tolist()
+    preds = model.predict(X_test)
+    return dict(zip(periods, preds))
 
 
 if __name__ == "__main__":
