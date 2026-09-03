@@ -78,10 +78,9 @@ transaction costs at this battery duration — consistent with why real BESS
 projects stack multiple revenue streams rather than relying on day-ahead
 arbitrage alone.
 
-See [`model_finding.md`](model_finding.md) and
-[`docs/model_limitations.md`](docs/model_limitations.md) for the full findings
-log, including the P90 miscalibration diagnosis, the corrected seasonal
-finding, and the cost sensitivity analysis.
+See [`model_finding.md`](model_finding.md) for the full findings log,
+including the P90 miscalibration diagnosis, the corrected seasonal finding,
+and the cost sensitivity analysis.
 
 ## Setup
 
