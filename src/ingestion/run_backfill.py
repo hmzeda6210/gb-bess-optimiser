@@ -36,8 +36,8 @@ def backfill_mid(from_date: str, to_date: str, chunk_days: int = 7):
     failed_chunks = []
 
     chunk_start = from_dt
-    while chunk_start < to_dt:
-        chunk_end = min(chunk_start + timedelta(days=chunk_days), to_dt)
+    while chunk_start <= to_dt:
+        chunk_end = min(chunk_start + timedelta(days=chunk_days), to_dt + timedelta(days=1))
         try:
             raw = fetch_mid(chunk_start, chunk_end)
             rows = transform_mid_response(raw, is_live_pull=False)
