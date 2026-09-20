@@ -10,6 +10,8 @@ from datetime import datetime
 from src.optimisation.dispatch import load_day_ahead_prices, run_dispatch, check_schedule
 from src.backtesting.metrics import compute_backtest_metrics, compute_seasonal_breakdown
 
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 CAPACITY_MWH = 10.0
 MAX_POWER_MW = 5.0
 ETA_C = 0.922
@@ -34,8 +36,9 @@ def get_dispatch_for_date(date_str: str) -> dict:
     return {"date": date_str, "profit": profit, "schedule": schedule, "checks": checks}
 
 
-def get_backtest_results(path: str = "backtest_results.json") -> list:
-    with open(path,  encoding="utf-8") as f:
+def get_backtest_results(path: str = None) -> list:
+    path = path or os.path.join(BASE_DIR, "backtest_results.json")
+    with open(path, encoding="utf-8") as f:
         return json.load(f)
 
 
@@ -65,7 +68,8 @@ def get_equity_curve(results: list, capital_base: float = CAPITAL_BASE_GBP) -> d
     return {"dates": dates, "before_costs": before, "after_costs": after if has_after_costs else None}
 
 
-def get_findings_markdown(path: str = "model_finding.md") -> str:
+def get_findings_markdown(path: str = None) -> str:
+    path = path or os.path.join(BASE_DIR, "model_finding.md")
     if not os.path.exists(path):
         return "*model_finding.md not found.*"
     with open(path, encoding="utf-8") as f:
