@@ -76,7 +76,8 @@ def get_findings_markdown(path: str = None) -> str:
         return f.read()
 
 
-def data_last_updated(path: str = "backtest_results.json") -> str:
+def data_last_updated(path: str = None) -> str:
+    path = path or os.path.join(BASE_DIR, "backtest_results.json")
     if not os.path.exists(path):
         return "unavailable"
     return datetime.fromtimestamp(os.path.getmtime(path)).strftime("%Y-%m-%d %H:%M")

@@ -4,11 +4,13 @@ checks. Designed to be called repeatedly by Phase 4's backtester."""
 
 import sqlite3
 import pyomo.environ as pyo
+import os
 
+DB_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "gb_prices.db")
 
 def load_day_ahead_prices(settlement_date: str) -> dict:
     """Returns {settlement_period: price} for one settlement date."""
-    conn = sqlite3.connect("gb_prices.db")
+    conn = sqlite3.connect(DB_PATH)
     rows = conn.execute(
         "SELECT settlement_period, value FROM price_series "
         "WHERE series_id = 'gb_day_ahead_price' AND settlement_date = ? "
