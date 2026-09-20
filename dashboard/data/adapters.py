@@ -18,10 +18,21 @@ ETA_C = 0.922
 ETA_D = 0.922
 CAPITAL_BASE_GBP = 3_000_000
 
-# Cost sensitivity: precomputed via scripts/check_costs.py and
-# scripts/apply_halved_costs.py, NOT recomputed live on each page load
-# (would require re-running the full backtest 3x per view). Update these
-# manually if you rerun those scripts with different assumptions.
+DISPATCH_CACHE_PATH = os.path.join(BASE_DIR, "dispatch_cache.json")
+_dispatch_cache = None
+
+
+def _load_dispatch_cache():
+    global _dispatch_cache
+    if _dispatch_cache is None:
+        if os.path.exists(DISPATCH_CACHE_PATH):
+            with open(DISPATCH_CACHE_PATH, encoding="utf-8") as f:
+                _dispatch_cache = json.load(f)
+        else:
+            _dispatch_cache = {}
+    return _dispatch_cache
+
+
 COST_SENSITIVITY = [
     {"scenario": "No trade costs", "total_profit": 117114, "per_mw_year": 20453, "days_profitable": "342 / 418 (82%)"},
     {"scenario": "Half of assumed costs", "total_profit": 42880, "per_mw_year": 7489, "days_profitable": "235 / 418 (56%)"},
@@ -30,6 +41,10 @@ COST_SENSITIVITY = [
 
 
 def get_dispatch_for_date(date_str: str) -> dict:
+    cache = _load_dispatch_cache()
+    if date_str in cache:
+        return cache[date_str]
+
     prices = load_day_ahead_prices(date_str)
     profit, schedule = run_dispatch(prices, CAPACITY_MWH, MAX_POWER_MW, ETA_C, ETA_D)
     checks = check_schedule(schedule, CAPACITY_MWH, MAX_POWER_MW, ETA_C, ETA_D)
@@ -51,8 +66,6 @@ def get_seasonal_breakdown(results: list) -> dict:
 
 
 def get_equity_curve(results: list, capital_base: float = CAPITAL_BASE_GBP) -> dict:
-    """Computed LIVE from backtest_results.json - real daily granularity,
-    not the coarser monthly aggregation used elsewhere for display size."""
     dates, before, after = [], [], []
     running_before, running_after = capital_base, capital_base
     has_after_costs = results and "real_profit_after_costs" in results[0]
