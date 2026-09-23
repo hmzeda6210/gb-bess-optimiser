@@ -89,7 +89,7 @@ class WalkForwardBacktester:
 
         return self.daily_results
     
-#Persist/reload daily_results to/from JSON so plotting doesn't require re-running the (slow) backtest."""
+#Persist/reload daily_results to/from JSON so plotting doesn't require re-running the (slow) backtest
 def save_results(daily_results: list, filepath: str = "backtest_results.json"):
     with open(filepath, "w") as f:
         json.dump(daily_results, f)
@@ -99,7 +99,7 @@ def load_results(filepath: str = "backtest_results.json") -> list:
     with open(filepath) as f:
         return json.load(f)
         
-#Run the full walk-forward backtest, save results, and print headline + seasonal metrics.
+#Run the full walk-forward backtest, save results, and print headline + seasonal metrics
 if __name__ == "__main__":
     bt = WalkForwardBacktester(
         "2025-06-01", "2026-07-23",
