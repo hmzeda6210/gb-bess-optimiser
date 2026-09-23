@@ -5,7 +5,7 @@ import requests
 
 BASE_URL = "https://data.elexon.co.uk/bmrs/api/v1"
 
-
+#Fetch raw MID (day-ahead reference price) data for a UTC time window
 def fetch_mid(from_time: datetime, to_time: datetime) -> dict:
     """Fetch raw MID (day-ahead reference price) data for a UTC time window."""
     if from_time.tzinfo is None or to_time.tzinfo is None:
@@ -22,11 +22,12 @@ def fetch_mid(from_time: datetime, to_time: datetime) -> dict:
     response.raise_for_status()
     return response.json()
 
-
+#Current UTC time, centralised so it can be mocked in tests/backtests
 def now_utc() -> datetime:
     """Current UTC time, centralised so it can be mocked in tests/backtests."""
     return datetime.now(timezone.utc)
 
+#Fetch imbalance/system prices for a single settlement date (YYYY-MM-DD)
 def fetch_disebsp(settlement_date: str) -> dict:
     """Fetch imbalance/system prices for a single settlement date (YYYY-MM-DD)."""
     url = f"{BASE_URL}/balancing/settlement/system-prices/{settlement_date}"

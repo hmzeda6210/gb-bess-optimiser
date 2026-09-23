@@ -1,3 +1,6 @@
+# One-off manual check: for a hardcoded schedule from a specific day, compare
+# the forecast price used to decide each trade against what actually happened.
+
 from src.optimisation.dispatch import load_day_ahead_prices
 
 actual = load_day_ahead_prices("2026-07-22")

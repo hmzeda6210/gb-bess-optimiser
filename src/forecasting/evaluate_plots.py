@@ -11,7 +11,7 @@ from src.analysis.feature_matrix import build_features
 QUANTILES = [0.1, 0.5, 0.9]
 FEATURE_COLS = ["settlement_period", "day_of_week", "month", "lag_1d", "lag_1w", "rolling_std_7d"]
 
-
+#Fit one LightGBM model per quantile using already-tuned hyperparameters (from tune_and_train.py)
 def train_final_models(X_train, y_train, params_by_quantile: dict):
     models = {}
     for tau in QUANTILES:
@@ -20,6 +20,7 @@ def train_final_models(X_train, y_train, params_by_quantile: dict):
         models[tau] = m
     return models
 
+#Check whether the P10-P90 band actually contains ~80% of actuals — a bar chart of below/within/above fractions vs their targets
 def plot_calibration(y_test, preds: dict, series_id: str):
     below_p10 = np.mean(y_test < preds[0.1])
     above_p90 = np.mean(y_test > preds[0.9])
@@ -40,7 +41,7 @@ def plot_calibration(y_test, preds: dict, series_id: str):
     fig.savefig(f"calibration_{series_id}.png")
     print(f"  Saved calibration_{series_id}.png")
 
-
+#Plots the last n_periods (default: 1 week) of the test set
 def plot_band_over_time(df_test: pd.DataFrame, preds: dict, series_id: str, n_periods: int = 336):
     """Plots the last n_periods (default: 1 week) of the test set."""
     plot_df = df_test.tail(n_periods).copy()
@@ -57,7 +58,7 @@ def plot_band_over_time(df_test: pd.DataFrame, preds: dict, series_id: str, n_pe
     fig.savefig(f"band_{series_id}.png")
     print(f"  Saved band_{series_id}.png")
 
-
+#Plot LightGBM feature importances from the P50 model as a proxy for all three quantiles
 def plot_feature_importance(models: dict, series_id: str):
     model = models[0.5]  # use the median model as representative
     importances = pd.Series(model.feature_importances_, index=FEATURE_COLS).sort_values()
@@ -69,7 +70,7 @@ def plot_feature_importance(models: dict, series_id: str):
     fig.savefig(f"importance_{series_id}.png")
     print(f"  Saved importance_{series_id}.png")
 
-
+#Full evaluation pipeline for one series: train on the last CV fold, then generate calibration, band, and importance plots
 def run(series_id: str, params_by_quantile: dict):
     df = build_features(series_id)
     X, y = df[FEATURE_COLS], df["y"]
@@ -86,7 +87,7 @@ def run(series_id: str, params_by_quantile: dict):
                          {tau: pd.Series(p) for tau, p in preds.items()}, series_id)
     plot_feature_importance(models, series_id)
 
-
+#Hardcoded best hyperparameters (from Optuna tuning) per series/quantile, then run the full plot pipeline for both series
 if __name__ == "__main__":
     day_ahead_params = {
         0.1: {"num_leaves": 15, "learning_rate": 0.030953, "n_estimators": 105, "min_child_samples": 5},

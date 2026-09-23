@@ -3,7 +3,7 @@
 import sqlite3
 import pandas as pd
 
-
+#Load one price series from gb_prices.db by series_id, sorted by time
 def load_series(series_id: str) -> pd.DataFrame:
     conn = sqlite3.connect("gb_prices.db")
     df = pd.read_sql_query(
@@ -15,7 +15,7 @@ def load_series(series_id: str) -> pd.DataFrame:
     conn.close()
     return df
 
-
+#Add a lagged value column by joining on actual settlement_datetime (not row shift), so gaps/clock changes don't silently misalign like row-position shifting would
 def add_timestamp_lag(df: pd.DataFrame, days_back: int, col_name: str) -> pd.DataFrame:
     """Gap-safe lag: join on actual timestamp, not row position."""
     lagged = df[["settlement_datetime", "value"]].copy()
@@ -23,7 +23,7 @@ def add_timestamp_lag(df: pd.DataFrame, days_back: int, col_name: str) -> pd.Dat
     lagged = lagged.rename(columns={"value": col_name})
     return df.merge(lagged, on="settlement_datetime", how="left")
 
-
+#Build the leakage-safe model-ready feature matrix (lag_1d, lag_1w, rolling_std_7d, day/month) for one series, dropping rows with incomplete lag history
 def build_features(series_id: str) -> pd.DataFrame:
     df = load_series(series_id)
     df["y"] = df["value"]
@@ -40,7 +40,7 @@ def build_features(series_id: str) -> pd.DataFrame:
     return df[["settlement_datetime", "settlement_period", "day_of_week", "month",
                "lag_1d", "lag_1w", "rolling_std_7d", "y"]]
 
-
+#Build feature matrices for both series and print their shapes/head for a sanity check
 if __name__ == "__main__":
     day_ahead_features = build_features("gb_day_ahead_price")
     imbalance_features = build_features("gb_imbalance_price")

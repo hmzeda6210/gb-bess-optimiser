@@ -4,7 +4,7 @@ import sqlite3
 import pandas as pd
 import numpy as np
 
-
+#Load one price series from gb_prices.db by series_id (e.g. 'gb_day_ahead_price', 'gb_imbalance_price'), sorted by time.
 def load_series(series_id: str) -> pd.DataFrame:
     conn = sqlite3.connect("gb_prices.db")
     df = pd.read_sql_query(
@@ -16,7 +16,7 @@ def load_series(series_id: str) -> pd.DataFrame:
     conn.close()
     return df.reset_index(drop=True)
 
-
+#Baseline check: compare persistence (yesterday) vs weekly-seasonal (last week) naive forecasts on a holdout, the MAE a real model must beat
 def evaluate_naive_baselines(df: pd.DataFrame, test_days: int = 60):
     """
     Shifts assume ~48 periods/day (a small, known imprecision on the rare
@@ -39,7 +39,7 @@ def evaluate_naive_baselines(df: pd.DataFrame, test_days: int = 60):
     winner = "Persistence" if persistence_mae < weekly_mae else "Weekly"
     print(f"  --> Best naive baseline: {winner}\n")
 
-
+#Run the baseline check for both day-ahead and imbalance price series.
 if __name__ == "__main__":
     print("Day-ahead price baseline:")
     evaluate_naive_baselines(load_series("gb_day_ahead_price"))

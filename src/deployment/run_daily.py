@@ -26,11 +26,10 @@ CAPACITY, MAX_POWER, ETA_C, ETA_D = 10.0, 5.0, 0.922, 0.922
 RETRY_DELAYS_SECONDS = [15 * 60, 15 * 60]   # retry at +15min, +15min again
 MAX_INGESTION_WAIT_SECONDS = 40 * 60          # hard cutoff: 40 minutes total
 
-
-def get_uk_dates(simulated_today: str = None) -> tuple[str, str, str]:
-    """Returns (yesterday, today, target_date) as UK-local date strings.
+"""Returns (yesterday, today, target_date) as UK-local date strings.
     Pass simulated_today (YYYY-MM-DD) to test against historical data
     instead of the real current date."""
+def get_uk_dates(simulated_today: str = None) -> tuple[str, str, str]:
     if simulated_today:
         today = datetime.strptime(simulated_today, "%Y-%m-%d").date()
     else:
@@ -39,12 +38,11 @@ def get_uk_dates(simulated_today: str = None) -> tuple[str, str, str]:
     target_date = today + timedelta(days=1)
     return yesterday.isoformat(), today.isoformat(), target_date.isoformat()
 
-
-def ingest_with_cutoff(fetch_fn, is_complete_fn, retry_delays_seconds, max_total_wait_seconds):
-    """Tries fetch_fn immediately; retries after each delay if incomplete,
+"""Tries fetch_fn immediately; retries after each delay if incomplete,
     but never lets total elapsed time exceed max_total_wait_seconds. Always
     returns the best data available, plus whether it was actually complete -
     a decision on slightly-stale data beats no decision at all."""
+def ingest_with_cutoff(fetch_fn, is_complete_fn, retry_delays_seconds, max_total_wait_seconds):
     start = time.time()
     result = fetch_fn()
     if is_complete_fn(result):
@@ -61,11 +59,9 @@ def ingest_with_cutoff(fetch_fn, is_complete_fn, retry_delays_seconds, max_total
 
     return result, False
 
-
-def ingest_yesterday(yesterday: str) -> bool:
-    """Catches up yesterday's settled prices (needed as lag features for
+"""Catches up yesterday's settled prices (needed as lag features for
     today's forecast). Returns whether the data was confirmed complete."""
-
+def ingest_yesterday(yesterday: str) -> bool:
     def fetch():
         backfill_mid(yesterday, yesterday)
         backfill_disebsp(yesterday, yesterday)
@@ -83,7 +79,9 @@ def ingest_yesterday(yesterday: str) -> bool:
     logger.info(f"Ingestion for {yesterday}: {result['periods_received']} periods, complete={complete}")
     return complete
 
-
+"""Daily production entry point: ingest yesterday's prices, 
+retrain, verify no leakage past target_date, forecast, 
+and decide tomorrow's dispatch schedule."""
 def run_daily(simulated_today: str = None):
     yesterday, today, target_date = get_uk_dates(simulated_today)
     logger.info(f"Run starting. UK dates -> yesterday={yesterday}, today={today}, target={target_date}")
@@ -106,6 +104,6 @@ def run_daily(simulated_today: str = None):
     logger.info(f"Dispatch decided for {target_date}: believed profit £{believed_profit:.2f}")
     return {"target_date": target_date, "believed_profit": believed_profit, "schedule": schedule}
 
-
+# Manual run against a simulated historical date; drop simulated_today for real deployment.
 if __name__ == "__main__":
-    run_daily(simulated_today="2026-07-21")  # remove simulated_today for real deployment
+    run_daily(simulated_today="2026-07-21") 

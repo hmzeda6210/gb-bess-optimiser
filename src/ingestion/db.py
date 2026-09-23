@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS price_series (
 );
 """
 
-
+#Connect to the SQLite engine and ensure price_series table exists
 def get_engine():
     engine = create_engine(DB_PATH)
     with engine.begin() as conn:
@@ -41,9 +41,8 @@ def insert_rows(engine, rows: list[dict]):
                         :published_at, :published_at_source, :settlement_run_type, :value, :volume_mwh, :source)
             """), row)
 
-
+#Return only rows knowable at decision_moment, core leakage filter
 def get_as_of(engine, series_id: str, decision_moment: str) -> list[dict]:
-    """Return only rows knowable at decision_moment — the core leakage filter."""
     with engine.connect() as conn:
         result = conn.execute(text("""
             SELECT settlement_datetime, settlement_period, value, published_at, published_at_source

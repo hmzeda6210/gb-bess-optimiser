@@ -16,7 +16,7 @@ THROUGHPUT_PER_CYCLE_MWH = 20  # charge + discharge = one full cycle, for a 10 M
 
 DEGRADATION_PER_MWH = (CAPITAL_BASE_GBP * CELL_COST_FRACTION) / (RATED_CYCLES * THROUGHPUT_PER_CYCLE_MWH)
 
-
+#Post-hoc trade cost overlay (slippage + fees + degradation) applied to an already-decided schedule — see module docstring for the known limitation this implies
 def compute_trade_costs(schedule: list, slippage_pct: float = 0.0025,
                          fee_per_mwh: float = 1.0,
                          degradation_per_mwh: float = DEGRADATION_PER_MWH) -> dict:

@@ -19,7 +19,7 @@ model.discharge = pyo.Var(model.T, domain=pyo.NonNegativeReals)
 model.soc = pyo.Var(model.T, domain=pyo.NonNegativeReals, bounds=(0, CAPACITY))
 model.b = pyo.Var(model.T, domain=pyo.Binary)
 
-
+#State-of-charge balance: soc[t] = soc[t-1] + charged energy - discharged energy
 def soc_balance_rule(m, t):
     prev_soc = INITIAL_SOC if t == 1 else m.soc[t - 1]
     return m.soc[t] == prev_soc + ETA_C * m.charge[t] - m.discharge[t] / ETA_D
@@ -27,21 +27,21 @@ def soc_balance_rule(m, t):
 
 model.soc_balance = pyo.Constraint(model.T, rule=soc_balance_rule)
 
-
+#Charge/discharge capped by MAX_POWER, gated by binary b[t] so both can't be active at once.
 def charge_limit_rule(m, t):
     return m.charge[t] <= MAX_POWER * m.b[t]
 
 
 model.charge_limit = pyo.Constraint(model.T, rule=charge_limit_rule)
 
-
+#Charge/discharge capped by MAX_POWER, gated by binary b[t] so both can't be active at once.
 def discharge_limit_rule(m, t):
     return m.discharge[t] <= MAX_POWER * (1 - m.b[t])
 
 
 model.discharge_limit = pyo.Constraint(model.T, rule=discharge_limit_rule)
 
-
+#Maximize profit: sell high (discharge), buy low (charge), same price series both ways
 def objective_rule(m):
     return sum(prices[t] * m.discharge[t] - prices[t] * m.charge[t] for t in m.T)
 

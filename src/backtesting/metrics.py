@@ -4,7 +4,7 @@ rather than output a misleading number."""
 
 import numpy as np
 
-
+#Headline backtest stats (capture rate, Sharpe, drawdown, £/MW/year) from daily results (refuses to report Sharpe when n_days < 30)
 def compute_backtest_metrics(daily_results: list, max_power_mw: float,
                               capital_base_gbp: float = None) -> dict:
     real = np.array([d["real_profit"] for d in daily_results])
@@ -67,9 +67,8 @@ def compute_backtest_metrics(daily_results: list, max_power_mw: float,
 
     return result
 
+#Win rate and average win/loss size, grouped by month, turns the spring weak-spot finding into a quantified, per-month statistic
 def compute_seasonal_breakdown(daily_results: list) -> dict:
-    """Win rate and average win/loss size, grouped by month - turns the
-    spring weak-spot finding into a quantified, per-month statistic."""
     from collections import defaultdict
 
     by_month = defaultdict(list)

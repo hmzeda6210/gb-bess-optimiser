@@ -16,12 +16,12 @@ BASELINE_MAE = {
     "gb_imbalance_price": 45.51,
 }
 
-
+#Pinball (quantile) loss for a given tau — the metric quantile models are actually scored on, not MAE
 def pinball_loss(y_true, y_pred, tau):
     diff = y_true - y_pred
     return np.mean(np.maximum(tau * diff, (tau - 1) * diff))
 
-
+#Train P10/P50/P90 LightGBM models per TimeSeriesSplit fold and report pinball loss + whether P50 MAE beats the naive baseline
 def train_and_evaluate(series_id: str, n_splits: int = 5):
     df = build_features(series_id)
     X, y = df[FEATURE_COLS], df["y"]
@@ -55,7 +55,7 @@ def train_and_evaluate(series_id: str, n_splits: int = 5):
     verdict = "BEATS baseline" if avg_p50_mae < baseline else "does NOT beat baseline"
     print(f"\n  Avg P50 MAE: £{avg_p50_mae:.2f}  vs  baseline £{baseline:.2f}  -->  {verdict}")
 
-
+#Run the CV evaluation for both day-ahead and imbalance series
 if __name__ == "__main__":
     train_and_evaluate("gb_day_ahead_price")
     train_and_evaluate("gb_imbalance_price")

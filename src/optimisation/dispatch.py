@@ -8,6 +8,7 @@ import os
 
 DB_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "gb_prices.db")
 
+#Returns {settlement_period: price} for one settlement date
 def load_day_ahead_prices(settlement_date: str) -> dict:
     """Returns {settlement_period: price} for one settlement date."""
     conn = sqlite3.connect(DB_PATH)
@@ -25,7 +26,7 @@ def load_day_ahead_prices(settlement_date: str) -> dict:
         print(f"Warning: {settlement_date} is missing periods {sorted(missing)}")
     return prices
 
-
+#Builds (but does not solve) a battery dispatch MILP for the given prices
 def build_dispatch_model(prices: dict, capacity: float, max_power: float,
                           eta_c: float, eta_d: float, initial_soc: float = 0.0) -> pyo.ConcreteModel:
     """Builds (but does not solve) a battery dispatch MILP for the given prices."""
@@ -59,7 +60,7 @@ def build_dispatch_model(prices: dict, capacity: float, max_power: float,
 
     return model
 
-
+#Solves a built model, returns (profit, schedule)
 def solve_dispatch(model: pyo.ConcreteModel, prices: dict) -> tuple[float, list[dict]]:
     """Solves a built model, returns (profit, schedule)."""
     solver = pyo.SolverFactory('appsi_highs')
@@ -80,7 +81,7 @@ def solve_dispatch(model: pyo.ConcreteModel, prices: dict) -> tuple[float, list[
         })
     return profit, schedule
 
-
+#One-call convenience wrapper: build + solve, this is what Phase 4's backtester should call, once per day, across many days.
 def run_dispatch(prices: dict, capacity: float, max_power: float,
                   eta_c: float, eta_d: float, initial_soc: float = 0.0) -> tuple[float, list[dict]]:
     """One-call convenience wrapper: build + solve. This is what Phase 4's
@@ -88,7 +89,7 @@ def run_dispatch(prices: dict, capacity: float, max_power: float,
     model = build_dispatch_model(prices, capacity, max_power, eta_c, eta_d, initial_soc)
     return solve_dispatch(model, prices)
 
-
+#Runs physical sanity checks against a solved schedule
 def check_schedule(schedule: list[dict], capacity: float, max_power: float,
                     eta_c: float, eta_d: float, tol: float = 0.01) -> dict:
     """Runs physical sanity checks against a solved schedule."""

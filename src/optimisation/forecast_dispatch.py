@@ -10,14 +10,14 @@ from src.optimisation.dispatch import run_dispatch, check_schedule, load_day_ahe
 
 FEATURE_COLS = ["settlement_period", "day_of_week", "month", "lag_1d", "lag_1w", "rolling_std_7d"]
 
-# Paste in your real tuned P50 hyperparameters from tune_and_train.py
 P50_PARAMS = {"num_leaves": 19, "learning_rate": 0.017032, "n_estimators": 263, "min_child_samples": 33}
 
 
-def forecast_day_ahead_p50(target_date: str) -> dict:
-    """Trains on everything strictly BEFORE target_date, forecasts that one
+
+"""Trains on everything strictly BEFORE target_date, forecasts that one
     day's 48 periods. This mirrors a real decision: on the morning of
     target_date - 1, you only know the past."""
+def forecast_day_ahead_p50(target_date: str) -> dict:
     df = build_features("gb_day_ahead_price")
     target_ts = pd.Timestamp(target_date, tz="UTC")
 
@@ -34,7 +34,7 @@ def forecast_day_ahead_p50(target_date: str) -> dict:
 
     return dict(zip(test_periods, preds))
 
-
+#Dispatch using the forecast, then re-price that same schedule against actual prices — measures the profit gap forecast error causes."""
 def evaluate_forecast_driven_dispatch(target_date: str, capacity: float, max_power: float,
                                        eta_c: float, eta_d: float):
     forecast_prices = forecast_day_ahead_p50(target_date)
@@ -59,12 +59,10 @@ def evaluate_forecast_driven_dispatch(target_date: str, capacity: float, max_pow
         "checks": checks,
     }
     
-    
+'''Trains once on everything strictly before cutoff_date. 
+Pass in an already-loaded feature matrix (from build_features) rather than reloading it every call
+the raw data doesn't change day to day, only the training cutoff does'''
 def train_p50_model(df: pd.DataFrame, cutoff_date: str):
-    """Trains once on everything strictly before cutoff_date. Pass in an
-    already-loaded feature matrix (from build_features) rather than
-    reloading it every call - the raw data doesn't change day to day,
-    only the training cutoff does."""
     cutoff_ts = pd.Timestamp(cutoff_date, tz="UTC")
     train_mask = df["settlement_datetime"] < cutoff_ts
     X_train, y_train = df.loc[train_mask, FEATURE_COLS], df.loc[train_mask, "y"]
@@ -72,9 +70,8 @@ def train_p50_model(df: pd.DataFrame, cutoff_date: str):
     model.fit(X_train, y_train)
     return model
 
-
+#Forecasts one day using an ALREADY-TRAINED model - no retraining here
 def forecast_with_model(df: pd.DataFrame, model, target_date: str) -> dict:
-    """Forecasts one day using an ALREADY-TRAINED model - no retraining here."""
     target_ts = pd.Timestamp(target_date, tz="UTC")
     test_mask = df["settlement_datetime"].dt.date == target_ts.date()
     X_test = df.loc[test_mask, FEATURE_COLS]

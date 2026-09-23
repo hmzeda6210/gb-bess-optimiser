@@ -1,6 +1,7 @@
-"""Phase 3 quick smoke-test: run the forecast-driven dispatch across a
-handful of dates spanning different seasons, before investing in Phase 4's
-full backtest infrastructure."""
+# Sanity-checks forecast-driven dispatch across a handful of dates spanning
+# seasons (including a known weak spot), comparing believed vs real vs
+# perfect-foresight profit, before building full Phase 4 backtest infra.
+
 
 from src.optimisation.forecast_dispatch import evaluate_forecast_driven_dispatch
 

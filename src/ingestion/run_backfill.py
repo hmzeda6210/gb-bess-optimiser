@@ -12,7 +12,7 @@ from src.ingestion.elexon_client import fetch_mid, fetch_disebsp
 from src.ingestion.transform import transform_mid_response, transform_disebsp_response
 from src.ingestion.db import get_engine, insert_rows
 
-
+#old function(now optimised)
 ''''def backfill_mid(from_date: str, to_date: str):
     from_time = datetime.strptime(from_date, "%Y-%m-%d").replace(tzinfo=timezone.utc)
     to_time = datetime.strptime(to_date, "%Y-%m-%d").replace(tzinfo=timezone.utc)
@@ -24,17 +24,16 @@ from src.ingestion.db import get_engine, insert_rows
     insert_rows(engine, rows)
     print(f"Inserted {len(rows)} rows for {from_date} to {to_date}.")'''
 
-"""concurrecy method to retrive data"""    
+#Concurrecy method to retrive data
+"""MID's endpoint rejects very large date ranges (observed: 400 Bad Request
+    on a 14-month window), so pull in smaller chunks and accumulate."""   
 def backfill_mid(from_date: str, to_date: str, chunk_days: int = 7):
-    """MID's endpoint rejects very large date ranges (observed: 400 Bad Request
-    on a 14-month window), so pull in smaller chunks and accumulate."""
     from_dt = datetime.strptime(from_date, "%Y-%m-%d").replace(tzinfo=timezone.utc)
     to_dt = datetime.strptime(to_date, "%Y-%m-%d").replace(tzinfo=timezone.utc)
 
     engine = get_engine()
     total_rows = 0
     failed_chunks = []
-
     chunk_start = from_dt
     while chunk_start <= to_dt:
         chunk_end = min(chunk_start + timedelta(days=chunk_days), to_dt + timedelta(days=1))
@@ -53,7 +52,8 @@ def backfill_mid(from_date: str, to_date: str, chunk_days: int = 7):
     print(f"\nMID: inserted {total_rows} rows total.")
     if failed_chunks:
         print(f"Failed chunks: {failed_chunks}")    
-    
+  
+#Backfill imbalance prices day-by-day (DISEBSP has no range endpoint), throttled with a 0.2s sleep between calls
 def backfill_disebsp(from_date: str, to_date:str):
     from_dt = datetime.strptime(from_date, "%Y-%m-%d")
     to_dt = datetime.strptime(to_date, "%Y-%m-%d")
@@ -83,7 +83,7 @@ def backfill_disebsp(from_date: str, to_date:str):
     if failed_dates:
         print(f"Failed dates ({len(failed_dates)}): {failed_dates}")
 
-
+#CLI entry point: dispatch to backfill_mid or backfill_disebsp based on the series arg
 if __name__ == "__main__":
     if len(sys.argv) != 4:
         print("Usage: python -m src.ingestion.run_backfill YYYY-MM-DD YYYY-MM-DD")

@@ -5,12 +5,12 @@ from datetime import datetime, timedelta
 # Empirically measured API publication lag; used for backfilled (estimated) rows.
 MEASURED_MID_PUBLICATION_LAG = timedelta(minutes=5)  # TODO: replace with a measured value
 
-
+#Compute settlement period end time from its ISO start-time string
 def _settlement_period_end(start_time_str: str) -> datetime:
     start = datetime.fromisoformat(start_time_str.replace("Z", "+00:00"))
     return start + timedelta(minutes=30)
 
-
+#Combine APXMIDP/N2EXMIDP by volume, since a zero-liquidity provider reports price=0
 def _volume_weighted_price(rows_for_period: list[dict]) -> tuple[float, float]:
     """Combine APXMIDP/N2EXMIDP by volume, since a zero-liquidity provider reports price=0."""
     total_value = sum(r["price"] * r["volume"] for r in rows_for_period)
@@ -19,12 +19,9 @@ def _volume_weighted_price(rows_for_period: list[dict]) -> tuple[float, float]:
         return None, 0.0
     return total_value / total_volume, total_volume
 
-
+#is_live_pull=True: published_at = observed request time (live pipeline).
+#is_live_pull=False: published_at = settlement period end + measured lag (backfill).
 def transform_mid_response(raw_json: dict, is_live_pull: bool, request_time: datetime = None) -> list[dict]:
-    """
-    is_live_pull=True: published_at = observed request time (live pipeline).
-    is_live_pull=False: published_at = settlement period end + measured lag (backfill).
-    """
     if is_live_pull and request_time is None:
         raise ValueError("Live pulls must pass request_time.")
 

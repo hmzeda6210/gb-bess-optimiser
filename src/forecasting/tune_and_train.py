@@ -16,12 +16,12 @@ BASELINE_MAE = {
     "gb_imbalance_price": 45.51,
 }
 
-
+#Pinball (quantile) loss for a given tau — the metric quantile models are actually scored on, not MAE
 def pinball_loss(y_true, y_pred, tau):
     diff = y_true - y_pred
     return np.mean(np.maximum(tau * diff, (tau - 1) * diff))
 
-
+#Tunes for a SPECIFIC quantile (alpha),both the model and the scoring metric use the same alpha, so they can never silently mismatch
 def tune_hyperparameters(X, y, alpha: float, n_trials: int = 30) -> dict:
     """Tunes for a SPECIFIC quantile (alpha) — both the model and the scoring
     metric use the same alpha, so they can never silently mismatch."""
@@ -51,7 +51,7 @@ def tune_hyperparameters(X, y, alpha: float, n_trials: int = 30) -> dict:
     print(f"  Best params: {study.best_params}")
     return study.best_params
 
-
+#Re-run TimeSeriesSplit CV with tuned hyperparameters for one quantile and report MAE per fold vs the naive baseline
 def evaluate_tuned(series_id: str, best_params: dict, alpha: float, n_splits: int = 5):
     df = build_features(series_id)
     X, y = df[FEATURE_COLS], df["y"]
@@ -76,7 +76,7 @@ def evaluate_tuned(series_id: str, best_params: dict, alpha: float, n_splits: in
         print(f"  (compare vs naive baseline £{BASELINE_MAE[series_id]:.2f})")
     return avg_mae
 
-
+#Tune one quantile (set via ALPHA_TO_TUNE) for both series with Optuna, then evaluate the tuned model
 if __name__ == "__main__":
     ALPHA_TO_TUNE = 0.9
     # change this to 0.1, 0.5, or 0.9 as needed

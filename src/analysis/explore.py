@@ -4,7 +4,7 @@ import sqlite3
 import pandas as pd
 import matplotlib.pyplot as plt
 
-
+#Load one price series from gb_prices.db by series_id, with a 'month' column added for seasonal grouping
 def load_series(series_id: str) -> pd.DataFrame:
     conn = sqlite3.connect("gb_prices.db")
     df = pd.read_sql_query(
@@ -17,7 +17,7 @@ def load_series(series_id: str) -> pd.DataFrame:
     conn.close()
     return df
 
-
+#Plot average £/MWh by settlement period (1-48), Winter vs Summer, to reveal the daily price shape and how it shifts by season."""
 def plot_seasonal_shape(df: pd.DataFrame, title: str, filename: str):
     seasons = {
         "Winter (Dec/Jan/Feb)": [12, 1, 2],
@@ -37,7 +37,7 @@ def plot_seasonal_shape(df: pd.DataFrame, title: str, filename: str):
     fig.savefig(filename)
     print(f"Saved {filename}")
 
-
+#Plot overlaid histograms comparing day-ahead vs imbalance price distributions to compare volatility/spread
 def plot_distributions(day_ahead: pd.DataFrame, imbalance: pd.DataFrame):
     fig, ax = plt.subplots(figsize=(10, 5))
     ax.hist(day_ahead["value"], bins=100, alpha=0.5, label="Day-ahead", density=True)
@@ -49,7 +49,7 @@ def plot_distributions(day_ahead: pd.DataFrame, imbalance: pd.DataFrame):
     fig.savefig("price_distributions.png")
     print("Saved price_distributions.png")
 
-
+#Load both series, report row counts, and generate all seasonal-shape and distribution plots
 if __name__ == "__main__":
     day_ahead = load_series("gb_day_ahead_price")
     imbalance = load_series("gb_imbalance_price")

@@ -22,13 +22,14 @@ class WalkForwardBacktester:
         self.eta_d = eta_d
         self.retrain_every = retrain_every
         self.daily_results = []
-
+        
+    #Yield each date from start_date to end_date inclusive, one day at a time."""
     def _test_days(self):
         d = self.start_date
         while d <= self.end_date:
             yield d
             d += timedelta(days=1)
-
+    #Day-by-day walk-forward loop: retrain every retrain_every days, forecast, dispatch on the forecast, then re-price against actuals and perfect foresight
     def run(self):
         df = build_features("gb_day_ahead_price")
         model = None
@@ -88,6 +89,7 @@ class WalkForwardBacktester:
 
         return self.daily_results
     
+#Persist/reload daily_results to/from JSON so plotting doesn't require re-running the (slow) backtest."""
 def save_results(daily_results: list, filepath: str = "backtest_results.json"):
     with open(filepath, "w") as f:
         json.dump(daily_results, f)
@@ -97,7 +99,7 @@ def load_results(filepath: str = "backtest_results.json") -> list:
     with open(filepath) as f:
         return json.load(f)
         
-
+#Run the full walk-forward backtest, save results, and print headline + seasonal metrics.
 if __name__ == "__main__":
     bt = WalkForwardBacktester(
         "2025-06-01", "2026-07-23",
