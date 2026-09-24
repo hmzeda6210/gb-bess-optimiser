@@ -4,6 +4,8 @@ A GB battery dispatch system: day-ahead and imbalance price forecasting (quantil
 regression), MILP-based battery scheduling, and backtesting against a
 perfect-foresight benchmark.
 
+**Live dashboard:** [hamza6210.pythonanywhere.com](https://hamza6210.pythonanywhere.com)
+
 ## Data pipeline
 
 Pulls half-hourly GB electricity prices from Elexon's public BMRS API:
@@ -82,6 +84,31 @@ See [`model_finding.md`](model_finding.md) for the full findings log,
 including the P90 miscalibration diagnosis, the corrected seasonal finding,
 and the cost sensitivity analysis.
 
+## Dashboard
+
+An interactive Dash application, deployed live (link above).
+
+- **Overview** — pick any backfilled date, see the real MILP dispatch schedule
+  and price chart, click any period for a "why this decision" panel (binding
+  constraint, SoC, spread vs. last charge — all derived live from the
+  schedule, nothing fabricated)
+- **Performance** — live equity curve (before/after trade costs), seasonality,
+  year-over-year comparison, cost sensitivity, and the full findings log
+
+Dispatch results are precomputed (`scripts/precompute_dispatch.py`) for fast
+lookups rather than solving the MILP live on every request.
+
+## Production deployment
+
+- `src/deployment/run_daily.py` — computes dates relative to actual runtime
+  (not hardcoded), UK-timezone-aware, with an ingestion retry/cutoff pattern
+  and a runtime leakage assertion. Verified locally and via Docker
+  (environment parity confirmed — identical output bare vs. containerised).
+- `Dockerfile` — containerised pipeline, tested locally.
+
+Live scheduled cloud deployment (Cloud Run + Cloud Scheduler) was scoped and
+the container verified, but not completed — see `model_finding.md` for why.
+
 ## Setup
 
 ```bash
@@ -91,4 +118,5 @@ python -m src.ingestion.run_backfill disebsp 2025-05-01 2026-07-23
 python -m src.forecasting.train_quantile
 python -m src.backtesting.walk_forward
 python -m src.backtesting.plot_seasonal
+python -m dashboard.app
 ```
