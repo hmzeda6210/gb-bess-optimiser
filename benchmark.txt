@@ -1,0 +1,18 @@
+Days compared: 413
+
+Before costs
+  Persistence-driven dispatch      total £   107,933   £/MW/yr £  19,078
+  LightGBM-driven dispatch         total £   117,641   £/MW/yr £  20,794
+  Perfect foresight                  total £   232,275
+  Capture rate: persistence 46.5%  |  model 50.6%
+
+Half costs
+  Persistence                      total £    27,014   £/MW/yr £   4,775
+  LightGBM                         total £    54,550   £/MW/yr £   9,642
+
+Full costs
+  Persistence                      total £   -53,905   £/MW/yr £  -9,528
+  LightGBM                         total £    -8,541   £/MW/yr £  -1,510
+
+Model minus persistence, per day (before costs): mean £23.50, t-stat 2.07, model better on 237/413 days
+(t-stat is rough: days within a retrain window are not independent)

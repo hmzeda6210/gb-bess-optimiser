@@ -267,6 +267,26 @@ pessimistic lower bound, not the system's true achievable performance under
 proper cost-aware dispatch. Building a cost-aware objective is the natural next
 step, not yet implemented.
 
+### Benchmark: forecast-driven vs persistence-driven dispatch
+
+To test whether the forecast adds value, the same MILP was driven by yesterday's
+prices (persistence, no model) across the same days (413 days where a complete
+previous day exists).
+
+| | Persistence | LightGBM |
+|---|---|---|
+| Profit before costs | £107,933 | £117,641 |
+| Capture rate | 46.5% | 50.6% |
+| Profit after half costs | £27,014 | £54,550 |
+| Profit after full costs | -£53,905 | -£8,541 |
+
+The model earns about 9% more than the no-model baseline before costs and loses
+far less after full costs, partly because its trading costs are about 22% lower
+(£126k vs £162k at full costs). It beats persistence on 237 of 413 days (rough
+t-statistic 2.07, overstated because days within a retrain window are correlated).
+Persistence alone captures 46.5% of perfect foresight, so the model's edge is
+modest. Only one baseline was tested; a weekly-seasonal baseline was not.
+
 ---
 
 ## Corrections made (8 Oct 2026)
