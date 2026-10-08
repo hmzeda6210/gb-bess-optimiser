@@ -10,3 +10,7 @@ backtest_results.json
 gb-bess-env/
 
 gb-bess-env/
+fold_results*.txt
+backtest_after*.txt
+tuning_after.txt
+backtest_results_OLD.json
