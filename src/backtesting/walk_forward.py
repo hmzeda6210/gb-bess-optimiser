@@ -45,6 +45,8 @@ class WalkForwardBacktester:
             try:
                 forecast_prices = forecast_with_model(df, model, date_str)
                 actual_prices = load_day_ahead_prices(date_str)
+                if len(actual_prices) < 46:   # skip data-gap / partial days
+                    raise ValueError(f"only {len(actual_prices)} periods of data")
 
                 common_periods = set(forecast_prices) & set(actual_prices)
                 forecast_mae = sum(abs(forecast_prices[p] - actual_prices[p]) for p in common_periods) / len(common_periods) if common_periods else None
@@ -57,7 +59,10 @@ class WalkForwardBacktester:
                     for r in schedule if r["period"] in actual_prices
                 )
 
-                costs = compute_trade_costs(schedule)
+                # price the trades at ACTUAL prices (the schedule holds forecast prices)
+                priced = [{**r, "price": actual_prices[r["period"]]}
+                          for r in schedule if r["period"] in actual_prices]
+                costs = compute_trade_costs(priced)
                 real_profit_after_costs = real_profit - costs["total_cost"]
 
                 perfect_profit, _ = run_dispatch(

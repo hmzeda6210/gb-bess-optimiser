@@ -1,0 +1,60 @@
+gb_day_ahead_price: dropped 356 rows with missing lag features
+--- Progress: 20/418 days (2s elapsed, ~30s remaining) ---
+Warning: 2025-06-27 is missing periods [19, 20, 23]
+Warning: 2025-06-28 is missing periods [47, 48]
+Warning: 2025-06-29 is missing periods [1, 2, 3, 4, 5]
+--- Progress: 40/418 days (3s elapsed, ~28s remaining) ---
+--- Progress: 60/418 days (4s elapsed, ~22s remaining) ---
+--- Progress: 80/418 days (5s elapsed, ~21s remaining) ---
+--- Progress: 100/418 days (7s elapsed, ~21s remaining) ---
+--- Progress: 120/418 days (7s elapsed, ~18s remaining) ---
+--- Progress: 140/418 days (9s elapsed, ~17s remaining) ---
+--- Progress: 160/418 days (10s elapsed, ~16s remaining) ---
+--- Progress: 180/418 days (11s elapsed, ~14s remaining) ---
+--- Progress: 200/418 days (12s elapsed, ~13s remaining) ---
+--- Progress: 220/418 days (14s elapsed, ~12s remaining) ---
+--- Progress: 240/418 days (14s elapsed, ~11s remaining) ---
+--- Progress: 260/418 days (16s elapsed, ~10s remaining) ---
+--- Progress: 280/418 days (18s elapsed, ~9s remaining) ---
+--- Progress: 300/418 days (18s elapsed, ~7s remaining) ---
+Warning: 2026-03-29 is missing periods [47, 48]
+--- Progress: 320/418 days (20s elapsed, ~6s remaining) ---
+--- Progress: 340/418 days (21s elapsed, ~5s remaining) ---
+--- Progress: 360/418 days (22s elapsed, ~4s remaining) ---
+--- Progress: 380/418 days (24s elapsed, ~2s remaining) ---
+--- Progress: 400/418 days (25s elapsed, ~1s remaining) ---
+Warning: 2026-07-23 is missing periods [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48]
+--- Progress: 418/418 days (26s elapsed, ~0s remaining) ---
+Saved results to backtest_results.json
+
+Total days: 418, retrains: 14
+
+--- Backtest metrics ---
+n_days: 418
+total_real_profit: 119305.88193768998
+total_perfect_profit: 236535.9184138422
+capture_rate: 0.5043880131936365
+sharpe_annualised: 12.414512701735564
+sharpe_note: Sharpe is scale-invariant to £ vs % return - reported value is identical either way. Likely overstated: retrain_every creates correlated (non-independent) daily returns within each retrain window, and the standard sqrt(252) annualisation assumes independence - a known limitation, not yet corrected for.
+max_drawdown_gbp: -716.3227129290608
+profit_per_mw_per_year: 20835.716223567866
+failing_days: []
+capital_base_gbp: 3000000
+annual_return_pct: 2.397534469561234
+max_drawdown_pct: -0.023277704549921143
+total_real_profit_after_costs: 5329.228117802573
+profit_per_mw_per_year_after_costs: 930.7025181808322
+
+--- Seasonal breakdown ---
+Month  1: n= 31  win_rate=77.4%  avg_win=£217.84  avg_loss=£-108.31  profit/day=£144.19  total=£4470.00
+Month  2: n= 28  win_rate=75.0%  avg_win=£199.12  avg_loss=£-105.12  profit/day=£123.06  total=£3445.67
+Month  3: n= 31  win_rate=83.9%  avg_win=£412.57  avg_loss=£-347.20  profit/day=£312.43  total=£9685.29
+Month  4: n= 30  win_rate=93.3%  avg_win=£460.24  avg_loss=£-162.37  profit/day=£418.73  total=£12561.98
+Month  5: n= 31  win_rate=77.4%  avg_win=£317.68  avg_loss=£-141.21  profit/day=£214.06  total=£6635.88
+Month  6: n= 60  win_rate=85.0%  avg_win=£527.87  avg_loss=£-112.42  profit/day=£431.83  total=£25909.57
+Month  7: n= 54  win_rate=75.9%  avg_win=£347.32  avg_loss=£-77.72  profit/day=£246.44  total=£13307.55
+Month  8: n= 31  win_rate=96.8%  avg_win=£304.71  avg_loss=£-28.42  profit/day=£293.96  total=£9112.84
+Month  9: n= 30  win_rate=93.3%  avg_win=£447.86  avg_loss=£-517.10  profit/day=£383.53  total=£11505.84
+Month 10: n= 31  win_rate=80.6%  avg_win=£418.50  avg_loss=£-80.30  profit/day=£321.96  total=£9980.76
+Month 11: n= 30  win_rate=90.0%  avg_win=£276.53  avg_loss=£-87.08  profit/day=£240.17  total=£7205.00
+Month 12: n= 31  win_rate=87.1%  avg_win=£212.55  avg_loss=£-63.33  profit/day=£176.95  total=£5485.49

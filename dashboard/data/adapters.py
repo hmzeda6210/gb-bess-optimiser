@@ -34,10 +34,11 @@ def _load_dispatch_cache():
 
 
 COST_SENSITIVITY = [
-    {"scenario": "No trade costs", "total_profit": 117114, "per_mw_year": 20453, "days_profitable": "342 / 418 (82%)"},
-    {"scenario": "Half of assumed costs", "total_profit": 42880, "per_mw_year": 7489, "days_profitable": "235 / 418 (56%)"},
-    {"scenario": "Full assumed costs", "total_profit": -31354, "per_mw_year": -5476, "days_profitable": "135 / 418 (32%)"},
+    {"scenario": "No trade costs", "total_profit": 119666, "per_mw_year": 21050, "days_profitable": "352 / 415 (85%)"},
+    {"scenario": "Half of assumed costs", "total_profit": 56311, "per_mw_year": 9905, "days_profitable": "248 / 415 (60%)"},
+    {"scenario": "Full assumed costs", "total_profit": -7045, "per_mw_year": -1239, "days_profitable": "147 / 415 (35%)"},
 ]
+
 
 
 def get_dispatch_for_date(date_str: str) -> dict:

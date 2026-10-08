@@ -1,0 +1,30 @@
+
+=== gb_day_ahead_price: tuning tau=0.5 ===
+gb_day_ahead_price: dropped 356 rows with missing lag features
+  Best trial pinball loss (tau=0.5): 10.602
+  Best params: {'num_leaves': 16, 'learning_rate': 0.01584653408046936, 'n_estimators': 265, 'min_child_samples': 45}
+  Copy-paste: P50_PARAMS = {'num_leaves': 16, 'learning_rate': 0.01584653408046936, 'n_estimators': 265, 'min_child_samples': 45}
+
+=== gb_day_ahead_price: evaluating tuned tau=0.5 model ===
+gb_day_ahead_price: dropped 356 rows with missing lag features
+  Fold 0: tau=0.5 MAE=£18.72 | persistence £21.27
+  Fold 1: tau=0.5 MAE=£16.21 | persistence £18.01
+  Fold 2: tau=0.5 MAE=£13.63 | persistence £15.50
+  Fold 3: tau=0.5 MAE=£29.00 | persistence £30.30
+  Fold 4: tau=0.5 MAE=£23.29 | persistence £26.71
+  Avg tuned tau=0.5 MAE: £20.17 vs persistence £22.36 -> 9.8% better
+
+=== gb_imbalance_price: tuning tau=0.5 ===
+gb_imbalance_price: dropped 336 rows with missing lag features
+  Best trial pinball loss (tau=0.5): 16.034
+  Best params: {'num_leaves': 20, 'learning_rate': 0.011785214800470782, 'n_estimators': 166, 'min_child_samples': 45}
+  Copy-paste: P50_PARAMS = {'num_leaves': 20, 'learning_rate': 0.011785214800470782, 'n_estimators': 166, 'min_child_samples': 45}
+
+=== gb_imbalance_price: evaluating tuned tau=0.5 model ===
+gb_imbalance_price: dropped 336 rows with missing lag features
+  Fold 0: tau=0.5 MAE=£31.92 | persistence £35.57
+  Fold 1: tau=0.5 MAE=£26.49 | persistence £31.53
+  Fold 2: tau=0.5 MAE=£23.80 | persistence £27.46
+  Fold 3: tau=0.5 MAE=£37.74 | persistence £44.02
+  Fold 4: tau=0.5 MAE=£36.89 | persistence £43.84
+  Avg tuned tau=0.5 MAE: £31.37 vs persistence £36.49 -> 14.0% better

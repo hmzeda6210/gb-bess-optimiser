@@ -31,7 +31,12 @@ def build_features(series_id: str) -> pd.DataFrame:
     df = add_timestamp_lag(df, days_back=7, col_name="lag_1w")
     df["day_of_week"] = df["settlement_datetime"].dt.dayofweek
     df["month"] = df["settlement_datetime"].dt.month
-    df["rolling_std_7d"] = df["value"].rolling(window=336, min_periods=48).std()
+    vol = (df.set_index("settlement_datetime")["value"]
+             .rolling("7D", min_periods=48).std()
+             .rename("rolling_std_7d").reset_index())
+    vol["settlement_datetime"] = vol["settlement_datetime"] + pd.Timedelta(days=1)
+    df = df.merge(vol, on="settlement_datetime", how="left")
+    #
 
     before = len(df)
     df = df.dropna(subset=["lag_1d", "lag_1w", "rolling_std_7d"]).reset_index(drop=True)

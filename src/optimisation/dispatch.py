@@ -1,6 +1,10 @@
 """Phase 3: reusable battery dispatch MILP. Pulls real day-ahead prices from
 the database, builds and solves the optimisation, and runs physical sanity
-checks. Designed to be called repeatedly by Phase 4's backtester."""
+checks. Designed to be called repeatedly by Phase 4's backtester.
+
+Units: charge/discharge/soc are in MWh per settlement period (half-hour).
+max_power is in MW, so the most energy that can move in one period is
+max_power * dt MWh (dt = 0.5 hours)."""
 
 import sqlite3
 import pyomo.environ as pyo
@@ -28,9 +32,11 @@ def load_day_ahead_prices(settlement_date: str) -> dict:
 
 #Builds (but does not solve) a battery dispatch MILP for the given prices
 def build_dispatch_model(prices: dict, capacity: float, max_power: float,
-                          eta_c: float, eta_d: float, initial_soc: float = 0.0) -> pyo.ConcreteModel:
+                          eta_c: float, eta_d: float, initial_soc: float = 0.0,
+                          dt: float = 0.5) -> pyo.ConcreteModel:
     """Builds (but does not solve) a battery dispatch MILP for the given prices."""
     periods = sorted(prices.keys())
+    max_energy = max_power * dt   # MWh the battery can move in one half-hour (THE FIX)
 
     model = pyo.ConcreteModel()
     model.T = pyo.Set(initialize=periods, ordered=True)
@@ -47,11 +53,11 @@ def build_dispatch_model(prices: dict, capacity: float, max_power: float,
     model.soc_balance = pyo.Constraint(model.T, rule=soc_balance_rule)
 
     def charge_limit_rule(m, t):
-        return m.charge[t] <= max_power * m.b[t]
+        return m.charge[t] <= max_energy * m.b[t]
     model.charge_limit = pyo.Constraint(model.T, rule=charge_limit_rule)
 
     def discharge_limit_rule(m, t):
-        return m.discharge[t] <= max_power * (1 - m.b[t])
+        return m.discharge[t] <= max_energy * (1 - m.b[t])
     model.discharge_limit = pyo.Constraint(model.T, rule=discharge_limit_rule)
 
     def objective_rule(m):
@@ -83,20 +89,23 @@ def solve_dispatch(model: pyo.ConcreteModel, prices: dict) -> tuple[float, list[
 
 #One-call convenience wrapper: build + solve, this is what Phase 4's backtester should call, once per day, across many days.
 def run_dispatch(prices: dict, capacity: float, max_power: float,
-                  eta_c: float, eta_d: float, initial_soc: float = 0.0) -> tuple[float, list[dict]]:
+                  eta_c: float, eta_d: float, initial_soc: float = 0.0,
+                  dt: float = 0.5) -> tuple[float, list[dict]]:
     """One-call convenience wrapper: build + solve. This is what Phase 4's
     backtester should call, once per day, across many days."""
-    model = build_dispatch_model(prices, capacity, max_power, eta_c, eta_d, initial_soc)
+    model = build_dispatch_model(prices, capacity, max_power, eta_c, eta_d, initial_soc, dt)
     return solve_dispatch(model, prices)
 
 #Runs physical sanity checks against a solved schedule
 def check_schedule(schedule: list[dict], capacity: float, max_power: float,
-                    eta_c: float, eta_d: float, tol: float = 0.01) -> dict:
+                    eta_c: float, eta_d: float, tol: float = 0.01,
+                    dt: float = 0.5) -> dict:
     """Runs physical sanity checks against a solved schedule."""
+    limit = max_power * dt   # MWh per half-hour
     simultaneous = [r["period"] for r in schedule if r["charge"] > tol and r["discharge"] > tol]
     soc_breach = [r["period"] for r in schedule if r["soc"] < -tol or r["soc"] > capacity + tol]
     power_breach = [r["period"] for r in schedule
-                     if r["charge"] > max_power + tol or r["discharge"] > max_power + tol]
+                     if r["charge"] > limit + tol or r["discharge"] > limit + tol]
 
     charge_prices = [r["price"] for r in schedule if r["charge"] > tol]
     discharge_prices = [r["price"] for r in schedule if r["discharge"] > tol]

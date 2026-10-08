@@ -10,7 +10,7 @@ from src.optimisation.dispatch import run_dispatch, check_schedule, load_day_ahe
 
 FEATURE_COLS = ["settlement_period", "day_of_week", "month", "lag_1d", "lag_1w", "rolling_std_7d"]
 
-P50_PARAMS = {"num_leaves": 19, "learning_rate": 0.017032, "n_estimators": 263, "min_child_samples": 33}
+P50_PARAMS = {'num_leaves': 16, 'learning_rate': 0.01584653408046936, 'n_estimators': 265, 'min_child_samples': 45}
 
 
 

@@ -1,0 +1,30 @@
+gb_day_ahead_price: dropped 356 rows with missing lag features
+
+=== gb_day_ahead_price ===
+  Fold 0: P50 MAE £18.68 | persistence £21.27 | weekly £26.91
+  Fold 1: P50 MAE £17.20 | persistence £18.01 | weekly £23.74
+  Fold 2: P50 MAE £18.15 | persistence £15.50 | weekly £17.56
+  Fold 3: P50 MAE £32.03 | persistence £30.30 | weekly £37.46
+  Fold 4: P50 MAE £27.59 | persistence £26.71 | weekly £26.93
+
+  Avg pinball loss per quantile:
+    tau=0.1: 6.124
+    tau=0.5: 11.364
+    tau=0.9: 6.354
+
+  Avg P50 MAE £22.73 vs best naive £22.36 -> -1.7% better
+gb_imbalance_price: dropped 336 rows with missing lag features
+
+=== gb_imbalance_price ===
+  Fold 0: P50 MAE £32.53 | persistence £35.57 | weekly £40.86
+  Fold 1: P50 MAE £28.34 | persistence £31.53 | weekly £36.69
+  Fold 2: P50 MAE £27.43 | persistence £27.46 | weekly £28.88
+  Fold 3: P50 MAE £40.36 | persistence £44.02 | weekly £51.64
+  Fold 4: P50 MAE £38.33 | persistence £43.84 | weekly £42.72
+
+  Avg pinball loss per quantile:
+    tau=0.1: 8.007
+    tau=0.5: 16.699
+    tau=0.9: 7.670
+
+  Avg P50 MAE £33.40 vs best naive £36.26 -> 7.9% better

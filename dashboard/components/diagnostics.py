@@ -6,13 +6,24 @@ components/diagnostics.py for what's shown instead.
 """
 
 
+''' old function 
 def derive_diagnostics(schedule: list, period: int, capacity: float, max_power: float,
                         eta_c: float, eta_d: float, tol: float = 0.01) -> dict:
     idx = period - 1
     row = schedule[idx]
     soc_before = schedule[idx - 1]["soc"] if idx > 0 else 0.0
     soc_after = row["soc"]
-
+'''
+    
+def derive_diagnostics(schedule: list, period: int, capacity: float, max_power: float,
+                        eta_c: float, eta_d: float, tol: float = 0.01, dt: float = 0.5) -> dict:
+    idx = next(i for i, r in enumerate(schedule) if r["period"] == period)
+    
+    row = schedule[idx]
+    soc_before = schedule[idx - 1]["soc"] if idx > 0 else 0.0
+    soc_after = row["soc"]
+    limit = max_power * dt   # MWh the battery can move in one half-hour
+    
     if row["charge"] > tol:
         action = "CHARGE"
     elif row["discharge"] > tol:
@@ -21,9 +32,9 @@ def derive_diagnostics(schedule: list, period: int, capacity: float, max_power: 
         action = "IDLE"
 
     binding = None
-    if action == "CHARGE" and abs(row["charge"] - max_power) < tol:
+    if action == "CHARGE" and abs(row["charge"] - limit) < tol:
         binding = "Max charge power"
-    elif action == "DISCHARGE" and abs(row["discharge"] - max_power) < tol:
+    elif action == "DISCHARGE" and abs(row["discharge"] - limit) < tol:
         binding = "Max discharge power"
     elif abs(soc_after - capacity) < tol:
         binding = "SoC ceiling (full)"
