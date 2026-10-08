@@ -19,7 +19,7 @@ def build_overview_layout():
                     html.Div(
                         [
                             html.H1("GB Battery Arbitrage"),
-                            html.Div("Day-ahead dispatch, walk-forward backtested", className="subtitle"),
+                            html.Div("Headline figures: walk-forward backtest. Schedule shown: perfect foresight of that day's prices.", className="subtitle"),
                         ]
                     ),
                     html.Div(

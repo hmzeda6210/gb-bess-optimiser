@@ -1,15 +1,16 @@
 """Dispatch schedule table. Sortable and filterable, per spec."""
 
 from dash import dash_table
+DT_HOURS = 0.5 
 
 
 def build_dispatch_table(schedule: list, tol: float = 0.01):
     rows = []
     for r in schedule:
         if r["charge"] > tol:
-            action, power, energy = "CHARGE", -r["charge"], r["charge"]
+            action, power, energy = "CHARGE", r["charge"] / DT_HOURS, r["charge"]
         elif r["discharge"] > tol:
-            action, power, energy = "DISCHARGE", r["discharge"], r["discharge"]
+            action, power, energy = "DISCHARGE", -r["discharge"] / DT_HOURS, r["discharge"]
         else:
             continue
         rows.append({

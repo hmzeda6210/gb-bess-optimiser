@@ -8,6 +8,7 @@ CHARGE_COLOR = "#2E6B4F"
 DISCHARGE_COLOR = "#B4491F"
 PRICE_COLOR = "#26272B"
 GRID_COLOR = "#E3E1DA"
+DT_HOURS = 0.5 
 
 
 def build_price_dispatch_chart(schedule: list, tol: float = 0.01) -> go.Figure:
@@ -18,10 +19,10 @@ def build_price_dispatch_chart(schedule: list, tol: float = 0.01) -> go.Figure:
     for r in schedule:
         if r["charge"] > tol:
             action, energy = "CHARGE", r["charge"]
-            bar_values.append(r["charge"]); bar_colors.append(CHARGE_COLOR)
+            bar_values.append(r["charge"] / DT_HOURS); bar_colors.append(CHARGE_COLOR)
         elif r["discharge"] > tol:
             action, energy = "DISCHARGE", r["discharge"]
-            bar_values.append(-r["discharge"]); bar_colors.append(DISCHARGE_COLOR)
+            bar_values.append(-r["discharge"] / DT_HOURS); bar_colors.append(DISCHARGE_COLOR)
         else:
             action, energy = "IDLE", 0.0
             bar_values.append(0); bar_colors.append("rgba(0,0,0,0)")

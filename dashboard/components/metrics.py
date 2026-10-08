@@ -21,7 +21,7 @@ def build_metrics_row(metrics: dict) -> html.Div:
             metric_card("Total Profit", f"£{metrics['total_real_profit']:,.0f}", sentiment),
             metric_card("Capture Rate", f"{metrics['capture_rate']:.1%}"),
             metric_card("£/MW/Year", f"£{metrics['profit_per_mw_per_year']:,.0f}"),
-            metric_card("Max Drawdown", f"£{metrics['max_drawdown_gbp']:,.0f}", "negative"),
+                        metric_card("Max Drawdown", f"-£{abs(metrics['max_drawdown_gbp']):,.0f}", "negative"),
         ],
         className="metrics-row",
     )
